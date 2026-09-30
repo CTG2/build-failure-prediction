@@ -14,15 +14,22 @@ pipeline {
             }
         }
 
+        stage('Create Virtual Environment') {
+            steps {
+                sh 'python3 -m venv .venv-jenkins'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'python3 -m pip install -r requirements.txt'
+                sh '.venv-jenkins/bin/python -m pip install --upgrade pip'
+                sh '.venv-jenkins/bin/python -m pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'python3 -m pytest'
+                sh '.venv-jenkins/bin/python -m pytest'
             }
         }
     }
