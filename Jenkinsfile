@@ -8,16 +8,22 @@ pipeline {
             }
         }
 
-        stage('Environment Check') {
+        stage('Install Dependencies') {
             steps {
-                echo 'Jenkins pipeline is working'
+                bat 'python -m pip install -r requirements.txt'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                bat 'python -m pytest'
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully'
+            echo 'All tests passed successfully'
         }
 
         failure {
