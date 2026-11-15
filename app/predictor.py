@@ -1,3 +1,4 @@
+﻿import json
 import os
 from pathlib import Path
 
@@ -21,7 +22,6 @@ def predict_repository_failure(repo_url):
     print("Loading Random Forest model...")
 
     model = joblib.load(MODEL_PATH)
-
     features = get_repository_features(repo_url)
 
     print("\nExtracted repository features:")
@@ -60,3 +60,12 @@ if __name__ == "__main__":
         f"{result['failure_probability']:.2%}"
     )
     print("--------------------------------")
+
+    output_path = os.environ.get("PREDICTION_OUTPUT_PATH")
+
+    if output_path:
+        Path(output_path).write_text(
+            json.dumps(result, indent=4),
+            encoding="utf-8"
+        )
+        print("Prediction saved to:", output_path)
