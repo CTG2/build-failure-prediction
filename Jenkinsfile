@@ -37,6 +37,12 @@ pipeline {
             steps {
                 sh '.venv-jenkins/bin/python scripts/verify_model.py'
             }
+
+        stage('Repository Failure Prediction') {
+            steps {
+                sh '.venv-jenkins/bin/python -m app.predictor'
+            }
+        }
         }
     }
 
@@ -50,3 +56,4 @@ pipeline {
         }
     }
 }
+

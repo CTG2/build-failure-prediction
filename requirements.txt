@@ -2,4 +2,5 @@ pytest
 pandas
 numpy
 joblib
+requests
 scikit-learn==1.6.1
