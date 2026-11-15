@@ -18,16 +18,20 @@ def predict_repository_failure(repo_url):
     if not MODEL_PATH.exists():
         raise FileNotFoundError(f"Model not found: {MODEL_PATH}")
 
+    print("Loading Random Forest model...")
+
     model = joblib.load(MODEL_PATH)
 
     features = get_repository_features(repo_url)
 
-    probability = model.predict_proba(features)[0]
+    print("\nExtracted repository features:")
+    print(features.T.to_string())
 
+    probabilities = model.predict_proba(features)[0]
     classes = [int(value) for value in model.classes_]
 
     failure_probability = float(
-        probability[classes.index(1)]
+        probabilities[classes.index(1)]
     )
 
     prediction = int(model.predict(features)[0])
@@ -35,22 +39,24 @@ def predict_repository_failure(repo_url):
     return {
         "repository": repo_url,
         "prediction": "FAILURE" if prediction == 1 else "SUCCESS",
-        "failure_probability": failure_probability,
-        "features": features
+        "failure_probability": failure_probability
     }
 
 
 if __name__ == "__main__":
-    url = input("Enter GitHub repository URL: ").strip()
+    url = os.environ.get("REPOSITORY_URL")
+
+    if not url:
+        url = input("Enter public GitHub repository URL: ").strip()
 
     result = predict_repository_failure(url)
 
     print("\nBUILD FAILURE PREDICTION")
-    print("-----------------------------")
+    print("--------------------------------")
     print("Repository:", result["repository"])
     print("Prediction:", result["prediction"])
     print(
         "Failure probability:",
         f"{result['failure_probability']:.2%}"
     )
-    print("-----------------------------")
+    print("--------------------------------")

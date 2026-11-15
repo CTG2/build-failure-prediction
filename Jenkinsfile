@@ -37,18 +37,20 @@ pipeline {
             steps {
                 sh '.venv-jenkins/bin/python scripts/verify_model.py'
             }
+        }
 
         stage('Repository Failure Prediction') {
             steps {
-                sh '.venv-jenkins/bin/python -m app.predictor'
+                withEnv(['REPOSITORY_URL=https://github.com/apache/commons-lang']) {
+                    sh '.venv-jenkins/bin/python -m app.predictor'
+                }
             }
-        }
         }
     }
 
     post {
         success {
-            echo 'All tests passed and ML model verification completed successfully'
+            echo 'Tests and ML prediction completed successfully'
         }
 
         failure {
@@ -56,4 +58,3 @@ pipeline {
         }
     }
 }
-
