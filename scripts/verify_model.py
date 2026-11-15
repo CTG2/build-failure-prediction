@@ -32,6 +32,11 @@ FEATURE_COLUMNS = [
     "tool"
 ]
 
+# Mapping used during model training:
+# 0 = Successful build (T)
+# 1 = Failed build (F)
+FAILURE_CLASS = 1
+
 
 def verify_model():
     if not MODEL_PATH.exists():
@@ -50,6 +55,13 @@ def verify_model():
             "Model feature columns do not match expected columns.\n"
             f"Expected: {FEATURE_COLUMNS}\n"
             f"Found: {actual_features}"
+        )
+
+    classes = [int(value) for value in model.classes_]
+
+    if set(classes) != {0, 1}:
+        raise ValueError(
+            f"Unexpected model classes: {classes}"
         )
 
     sample = {
@@ -78,24 +90,25 @@ def verify_model():
     )
 
     probabilities = model.predict_proba(input_data)[0]
-    classes = list(model.classes_)
 
-    if "F" not in classes:
-        raise ValueError(
-            f"Failure class 'F' not found. Model classes: {classes}"
-        )
-
-    failure_index = classes.index("F")
+    failure_index = classes.index(FAILURE_CLASS)
     failure_probability = probabilities[failure_index]
 
-    prediction = model.predict(input_data)[0]
+    prediction = int(model.predict(input_data)[0])
+
+    predicted_status = (
+        "FAILURE" if prediction == 1 else "SUCCESS"
+    )
 
     print("\nMODEL VERIFICATION SUCCESSFUL")
     print("--------------------------------")
     print(f"Model path: {MODEL_PATH}")
     print(f"Model classes: {classes}")
-    print(f"Predicted label: {prediction}")
-    print(f"Predicted failure probability: {failure_probability:.2%}")
+    print(f"Predicted class: {prediction}")
+    print(f"Predicted build status: {predicted_status}")
+    print(
+        f"Build failure probability: {failure_probability:.2%}"
+    )
     print("--------------------------------")
     print("Model loaded and test inference completed.")
 
