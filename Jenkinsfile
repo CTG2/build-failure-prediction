@@ -32,11 +32,17 @@ pipeline {
                 sh '.venv-jenkins/bin/python -m pytest'
             }
         }
+
+        stage('Verify ML Model') {
+            steps {
+                sh '.venv-jenkins/bin/python scripts/verify_model.py'
+            }
+        }
     }
 
     post {
         success {
-            echo 'All tests passed successfully'
+            echo 'All tests passed and ML model verification completed successfully'
         }
 
         failure {
