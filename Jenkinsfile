@@ -43,7 +43,7 @@ pipeline {
         stage('Repository Failure Prediction') {
             steps {
                 withEnv([
-                    'REPOSITORY_URL=https://github.com/apache/commons-io',
+                    'REPOSITORY_URL=https://github.com/apache/commons-codec',
                     'PREDICTION_OUTPUT_PATH=prediction.json'
                 ]) {
                     sh '.venv-jenkins/bin/python -m app.predictor'
@@ -54,7 +54,7 @@ pipeline {
         stage('Checkout Java Repository') {
             steps {
                 sh 'rm -rf target-repo'
-                sh 'git clone --depth 1 https://github.com/apache/commons-io.git target-repo'
+                sh 'git clone --depth 1 https://github.com/apache/commons-codec.git target-repo'
             }
         }
 
