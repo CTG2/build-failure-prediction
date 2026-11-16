@@ -1,10 +1,20 @@
+
 pipeline {
     agent any
+
+    parameters {
+        string(
+            name: 'REPOSITORY_URL',
+            defaultValue: 'https://github.com/apache/commons-codec',
+            description: 'GitHub repository to test'
+        )
+    }
 
     stages {
         stage('Project Check') {
             steps {
                 echo 'Build Failure Prediction project started'
+                echo "Repository: ${params.REPOSITORY_URL}"
             }
         }
 
@@ -43,7 +53,7 @@ pipeline {
         stage('Repository Failure Prediction') {
             steps {
                 withEnv([
-                    'REPOSITORY_URL=https://github.com/apache/commons-codec',
+                    "REPOSITORY_URL=${params.REPOSITORY_URL}",
                     'PREDICTION_OUTPUT_PATH=prediction.json'
                 ]) {
                     sh '.venv-jenkins/bin/python -m app.predictor'
@@ -54,7 +64,10 @@ pipeline {
         stage('Checkout Java Repository') {
             steps {
                 sh 'rm -rf target-repo'
-                sh 'git clone --depth 1 https://github.com/apache/commons-codec.git target-repo'
+
+                withEnv(["REPOSITORY_URL=${params.REPOSITORY_URL}"]) {
+                    sh 'git clone --depth 1 "$REPOSITORY_URL" target-repo'
+                }
             }
         }
 
